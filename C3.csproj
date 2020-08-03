@@ -1,0 +1,138 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="ffmpeg\bin\avcodec-58.dll" />
+    <None Remove="ffmpeg\bin\avdevice-58.dll" />
+    <None Remove="ffmpeg\bin\avfilter-7.dll" />
+    <None Remove="ffmpeg\bin\avformat-58.dll" />
+    <None Remove="ffmpeg\bin\avutil-56.dll" />
+    <None Remove="ffmpeg\bin\ffmpeg.exe" />
+    <None Remove="ffmpeg\bin\ffprobe.exe" />
+    <None Remove="ffmpeg\bin\swresample-3.dll" />
+    <None Remove="ffmpeg\bin\swscale-5.dll" />
+    <None Remove="Images\brand_company.png" />
+    <None Remove="Images\btn_close_backslash.png" />
+    <None Remove="Images\btn_close_slash.png" />
+    <None Remove="Images\btn_login_bg.png" />
+    <None Remove="Images\btn_logout_icon_1.png" />
+    <None Remove="Images\btn_logout_icon_2.png" />
+    <None Remove="Images\btn_logout_icon_3.png" />
+    <None Remove="Images\btn_logout_icon_4.png" />
+    <None Remove="Images\btn_maximize.png" />
+    <None Remove="Images\btn_minimize.png" />
+    <None Remove="Images\btn_player_play.png" />
+    <None Remove="Images\btn_purchase_menu_bg.png" />
+    <None Remove="Images\icon_c3.png" />
+    <None Remove="Images\icon_login_main.png" />
+    <None Remove="Images\icon_login_user.png" />
+    <None Remove="Images\icon_user.png" />
+    <None Remove="Images\tab_bar_menu.png" />
+    <None Remove="Images\tab_list_icon.png" />
+    <None Remove="Images\tab_register_icon_horizontal.png" />
+    <None Remove="Images\tab_register_icon_vertical.png" />
+    <None Remove="Images\text_title_c3.png" />
+    <None Remove="Resources\AppleSDGothicNeoB.ttf" />
+    <None Remove="Resources\AppleSDGothicNeoH.ttf" />
+    <None Remove="Resources\AppleSDGothicNeoSB.ttf" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Remove="Localization\Localization.en-US.xaml" />
+    <Page Remove="Localization\Localization.ko-KR.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Localization\Localization.en-US.xaml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Localization\Localization.ko-KR.xaml">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="ffmpeg\bin\avcodec-58.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ffmpeg\bin\avdevice-58.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ffmpeg\bin\avfilter-7.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ffmpeg\bin\avformat-58.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ffmpeg\bin\avutil-56.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ffmpeg\bin\ffprobe.exe">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ffmpeg\bin\swresample-3.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ffmpeg\bin\swscale-5.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="ffmpeg\bin\ffmpeg.exe">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <Resource Include="Images\brand_company.png" />
+    <Resource Include="Images\btn_close_backslash.png" />
+    <Resource Include="Images\btn_close_slash.png" />
+    <Resource Include="Images\btn_login_bg.png" />
+    <Resource Include="Images\btn_logout_icon_1.png" />
+    <Resource Include="Images\btn_logout_icon_2.png" />
+    <Resource Include="Images\btn_logout_icon_3.png" />
+    <Resource Include="Images\btn_logout_icon_4.png" />
+    <Resource Include="Images\btn_maximize.png" />
+    <Resource Include="Images\btn_minimize.png" />
+    <Resource Include="Images\btn_player_play.png" />
+    <Resource Include="Images\btn_purchase_menu_bg.png" />
+    <Resource Include="Images\icon_c3.png" />
+    <Resource Include="Images\icon_login_main.png" />
+    <Resource Include="Images\icon_login_user.png" />
+    <Resource Include="Images\icon_user.png" />
+    <Resource Include="Images\tab_list_icon.png" />
+    <Resource Include="Images\tab_register_icon_vertical.png" />
+    <Resource Include="Images\tab_bar_menu.png" />
+    <Resource Include="Images\tab_register_icon_horizontal.png" />
+    <Resource Include="Images\text_title_c3.png" />
+    <Resource Include="Resources\AppleSDGothicNeoB.ttf" />
+    <Resource Include="Resources\AppleSDGothicNeoH.ttf" />
+    <Resource Include="Resources\AppleSDGothicNeoSB.ttf" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Watermark\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MediaToolkit" Version="1.1.0.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Images\c3.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Images\c3_resized.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Images\watermark.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

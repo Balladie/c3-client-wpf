@@ -1,0 +1,24 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:C3.Localization"
+                    xmlns:system="clr-namespace:System;assembly=mscorlib">
+
+    <system:String x:Key="Welcome">Welcome</system:String>
+    <system:String x:Key="RegisterAvailableMonth">Registration available on this month</system:String>
+    <system:String x:Key="PurchaseRegistrations">+ Purchase Registrations</system:String>
+    <system:String x:Key="UpgradeToPremium">Upgrade to Premium</system:String>
+    <system:String x:Key="RegisterCopyrights">Register copyrights</system:String>
+    <system:String x:Key="ListMyCopyrights">My list of copyrights</system:String>
+    <system:String x:Key="Logout">Logout</system:String>
+    <system:String x:Key="TitleRegisterNew">Register New Video Copyright Protection</system:String>
+    <system:String x:Key="AddVideoFile">Add a video file.</system:String>
+    <system:String x:Key="RegisterThisFile">Register Video Copyright with This File</system:String>
+    <system:String x:Key="ContentTitle">Title</system:String>
+    <system:String x:Key="ContentRegisterer">Registerer</system:String>
+    <system:String x:Key="ContentMadeAt">Made At</system:String>
+    <system:String x:Key="ContentKeyword">Keywords</system:String>
+    <system:String x:Key="ContentDescription">Description</system:String>
+    <system:String x:Key="ContentOriginalLink">Original Link</system:String>
+    <system:String x:Key="ContentKeywordHint">Seperate each keyword by comma(',')</system:String>
+    <system:String x:Key="TitleSubmitVideoInfo">Submit information about the video</system:String>
+</ResourceDictionary>

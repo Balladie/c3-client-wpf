@@ -1,0 +1,27 @@
+﻿<Window x:Class="C3.Views.ThumbnailWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:C3.Views"
+        mc:Ignorable="d"
+        Title="ThumbnailWindow">
+    <StackPanel>
+        <TextBlock x:Name="TitleDialogThumbnail1" Width="640" Height="20" FontSize="15" TextAlignment="Center">
+            <Run x:Name="TitleDialogThumbnail1_Text" Text="Choose appropriate thumbnail for the video."/>
+        </TextBlock>
+        <TextBlock x:Name="TitleDialogThumbnail2" Width="640" Height="20" FontSize="15" TextAlignment="Center">
+            <Run x:Name="TitleDialogThumbnail2_Text" Text="This will be used to detect infringement, so take careful to choose!"/>
+        </TextBlock>
+        <TextBlock x:Name="TitleDialogThumbnail3" Width="640" Height="20" FontSize="15" TextAlignment="Center">
+            <Run x:Name="TitleDialogThumbnail3_Text" Text="[!] Recommended: No blackout screen, and watermark right below is clearly visible. [!]"/>
+        </TextBlock>
+        <Image x:Name="ImageThumbnail" Width="640" Height="360"/>
+        <Button x:Name="BtnThumbnailOK" Width="640" Height="40" Click="BtnThumbnailOK_Click">
+            <TextBlock x:Name="BtnThumbnailOK_Text" Text="OK, choose this as thumbnail"/>
+        </Button>
+        <Button x:Name="BtnThumbnailOther" Width="640" Height="40" Click="BtnThumbnailOther_Click">
+            <TextBlock x:Name="BtnThumbnailOther_Text" Text="No, change to another one"/>
+        </Button>
+    </StackPanel>
+</Window>

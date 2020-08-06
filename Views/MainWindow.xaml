@@ -111,7 +111,7 @@
             <Image Grid.Column="1" Width="33" Height="38" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,25" Source="../Images/icon_login_user.png"/>
 
             <TextBox x:Name="TextBox_LoginID" Grid.Column="1" Width="362.88" Height="54.87" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Top" CaretBrush="White" Background="Transparent" BorderThickness="2" VerticalContentAlignment="Center" Padding="15" Foreground="White" FontFamily="../Resources/#AppleSDGothicNeoB00" FontSize="18"/>
-            <TextBlock Grid.Column="1" Grid.Row="1" IsHitTestVisible="False" Text="ID" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="18.6,17,0,0" Foreground="#0CFFFFFF" FontFamily="../Resources/#AppleSDGothicNeoB00" FontSize="18">
+            <TextBlock Grid.Column="1" Grid.Row="1" IsHitTestVisible="False" Text="E-mail" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="18.6,17,0,0" Foreground="#0CFFFFFF" FontFamily="../Resources/#AppleSDGothicNeoB00" FontSize="18">
                 
             </TextBlock>
             <PasswordBox x:Name="PasswordBox_LoginPW" Grid.Column="1" Width="362.88" Height="54.87" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Top" CaretBrush="White" Margin="0,66.97" Background="Transparent" BorderThickness="2" VerticalContentAlignment="Center" Padding="15" Foreground="White" FontFamily="../Resources/#AppleSDGothicNeoB00" FontSize="18"/>

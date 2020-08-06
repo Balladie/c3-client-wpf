@@ -1,11 +1,11 @@
 {
   "version": 2,
-  "dgSpecHash": "TRGGOze1KcyrlMlFdL39vkrXQ247LgpodWQn6pIMDu6wu9tK7qkhdM8a54fi3SP6LMEpbxv5PrTFuDZB2LT6LQ==",
+  "dgSpecHash": "henwzEEOF1Lm0FU0tfW6UDfeoM85293kuEwWh60GvM86MC2zuxhoX9Wv+lDqatmj0TNBu3D4OzinofFkBUT5XA==",
   "success": true,
-  "projectFilePath": "C:\\Users\\blues\\Desktop\\Codes\\c3\\c3-client-wpf\\C3.csproj",
+  "projectFilePath": "C:\\Users\\pc\\Desktop\\ROWE\\C3\\c3-client-wpf\\C3.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\blues\\.nuget\\packages\\mediatoolkit\\1.1.0.1\\mediatoolkit.1.1.0.1.nupkg.sha512",
-    "C:\\Users\\blues\\.nuget\\packages\\newtonsoft.json\\12.0.3\\newtonsoft.json.12.0.3.nupkg.sha512"
+    "C:\\Users\\pc\\.nuget\\packages\\mediatoolkit\\1.1.0.1\\mediatoolkit.1.1.0.1.nupkg.sha512",
+    "C:\\Users\\pc\\.nuget\\packages\\newtonsoft.json\\12.0.3\\newtonsoft.json.12.0.3.nupkg.sha512"
   ],
   "logs": [
     {

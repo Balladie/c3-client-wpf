@@ -1,0 +1,5 @@
+*.sln
+.vs/
+bin/Debug/
+bin/Release/
+ffmpeg/

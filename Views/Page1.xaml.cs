@@ -107,8 +107,8 @@ namespace C3.Views
 
         private JObject requestUserJson()
         {
-            var username = Application.Current.Resources["username"];
-            var httpWebRequest = (HttpWebRequest)WebRequest.Create("http://c3.iptime.org:1485/api/users/" + username);
+            var email = Application.Current.Resources["email"];
+            var httpWebRequest = (HttpWebRequest)WebRequest.Create("http://c3.iptime.org:1485/api/users/" + email);
             httpWebRequest.Method = "GET";
             httpWebRequest.Headers["x-access-token"] = Application.Current.Resources["token"].ToString();
 

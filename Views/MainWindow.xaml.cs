@@ -210,14 +210,14 @@ namespace C3
 
         private void BtnLogin_Click(object sender, RoutedEventArgs e)
         {
-            var reqUsername = TextBox_LoginID.Text;
-            var result = requestLogin(reqUsername, PasswordBox_LoginPW.Password);
+            var reqEmail = TextBox_LoginID.Text;
+            var result = requestLogin(reqEmail, PasswordBox_LoginPW.Password);
 
             if (result != "")
             {
                 saveToken(result);
 
-                JObject joUser = requestUserJson(reqUsername);
+                JObject joUser = requestUserJson(reqEmail);
                 if (joUser == null)
                 {
                     MessageBox.Show("Somehow failed to get user information. Please email to us and we will fix it as soon as possible.");
@@ -245,16 +245,31 @@ namespace C3
             TextNumberAvailable_Text.Text = (Application.Current.Resources["isPremium"].ToString() == "True") ? availableCount : availableCount + "/10";
         }
 
-        private string requestLogin(string username, string password)
+        private static string Base64Encode(string plainText)
+        {
+            var plainTextBytes = Encoding.UTF8.GetBytes(plainText);
+            return Convert.ToBase64String(plainTextBytes);
+        }
+
+        private static string Reverse(string s)
+        {
+            char[] charArray = s.ToCharArray();
+            Array.Reverse(charArray);
+            return new string(charArray);
+        }
+
+        private string requestLogin(string email, string password)
         {
             var httpWebRequest = (HttpWebRequest)WebRequest.Create("http://c3.iptime.org:1485/api/auth/login");
             httpWebRequest.ContentType = "application/json";
             httpWebRequest.Method = "POST";
 
+            string encodedPassword = Base64Encode(Uri.EscapeDataString(Uri.EscapeDataString(Uri.EscapeDataString(Reverse(Base64Encode(password))))));
+
             using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
             {
-                string json = "{\"username\":\"" + username + "\"," +
-                    "\"password\":\"" + password + "\"}";
+                string json = "{\"email\":\"" + email + "\"," +
+                    "\"password\":\"" + encodedPassword + "\"}";
 
                 streamWriter.Write(json);
                 streamWriter.Flush();
@@ -288,12 +303,12 @@ namespace C3
             return "";
         }
 
-        private JObject requestUserJson(string username)
+        private JObject requestUserJson(string email)
         {            
             Debug.WriteLine("-------------");
-            Debug.WriteLine("username: " + username);
+            Debug.WriteLine("email: " + email);
             Debug.WriteLine("-------------");
-            var httpWebRequest = (HttpWebRequest)WebRequest.Create("http://c3.iptime.org:1485/api/users/" + username);
+            var httpWebRequest = (HttpWebRequest)WebRequest.Create("http://c3.iptime.org:1485/api/users/" + email);
             httpWebRequest.Method = "GET";
             httpWebRequest.Headers["x-access-token"] = Application.Current.Resources["token"].ToString();
 
@@ -323,6 +338,7 @@ namespace C3
         {
             Debug.WriteLine(jo["username"]);
             Application.Current.Resources["name"] = jo["data"]["name"];
+            Application.Current.Resources["email"] = jo["data"]["email"];
             Application.Current.Resources["availableRegisterCount"] = jo["data"]["availableRegisterCount"];
             Application.Current.Resources["isPremium"] = jo["data"]["isPremium"];
             Application.Current.Resources["videoList"] = jo["data"]["videoList"];

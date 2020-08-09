@@ -100,7 +100,7 @@ namespace C3.Views
                 TextBlock textDate = listDateText[i];
 
                 textTitle.Text = videoList[i]["title"].ToString();
-                textDate.Text = new DateTime(Convert.ToInt64(videoList[i]["registeredAt"].ToString())).ToString("yyyy.MM.dd");
+                textDate.Text = (new DateTime(1970, 1, 1, 0, 0, 0, 0)).AddMilliseconds(Convert.ToDouble(videoList[i]["registeredAt"].ToString())).ToString("yyyy. MM. dd.");
             }
 
             for (int i = 0; i < (length + 1) / 2; ++i)
@@ -249,7 +249,8 @@ namespace C3.Views
             string thumbnailFilename = "./thumbnail/thumbnail_" + dateNow + ".jpeg";
 
             string title = videoList[idx]["title"].ToString();
-            string registeredAt = new DateTime(Convert.ToInt64(videoList[idx]["registeredAt"].ToString())).ToString("yyyy. MM. dd.");
+            //string registeredAt = new DateTime(Convert.ToInt64(videoList[idx]["registeredAt"].ToString())).ToString("yyyy. MM. dd.");
+            string registeredAt = (new DateTime(1970, 1, 1, 0, 0, 0, 0)).AddMilliseconds(Convert.ToDouble(videoList[idx]["registeredAt"].ToString())).ToString("yyyy. MM. dd.");
             currentRegisteredAt = videoList[idx]["registeredAt"].ToString();
             string registerer = Application.Current.Resources["username"].ToString();
             string platform = videoList[idx]["platforms"][0].ToString();

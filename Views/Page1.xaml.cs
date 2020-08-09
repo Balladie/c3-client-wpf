@@ -561,7 +561,7 @@ namespace C3.Views
         private string registerVideo(string title, string keyword, string madeAt, string contentDescription, string originalLink, string pathThumbnail)
         {
             string username = Application.Current.Resources["username"].ToString();
-            var utcNow = DateTime.UtcNow.Ticks;
+            var utcNow = (long)(DateTime.UtcNow.ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds);
             JObject jo;
             long fileSize;
             string duration;

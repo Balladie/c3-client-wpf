@@ -7,15 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="ffmpeg\bin\avcodec-58.dll" />
-    <None Remove="ffmpeg\bin\avdevice-58.dll" />
-    <None Remove="ffmpeg\bin\avfilter-7.dll" />
-    <None Remove="ffmpeg\bin\avformat-58.dll" />
-    <None Remove="ffmpeg\bin\avutil-56.dll" />
-    <None Remove="ffmpeg\bin\ffmpeg.exe" />
-    <None Remove="ffmpeg\bin\ffprobe.exe" />
-    <None Remove="ffmpeg\bin\swresample-3.dll" />
-    <None Remove="ffmpeg\bin\swscale-5.dll" />
+    <Compile Remove="Watermark\**" />
+    <EmbeddedResource Remove="Watermark\**" />
+    <None Remove="Watermark\**" />
+    <Page Remove="Watermark\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="Images\brand_company.png" />
     <None Remove="Images\btn_close_backslash.png" />
     <None Remove="Images\btn_close_slash.png" />
@@ -58,36 +56,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="ffmpeg\bin\avcodec-58.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="ffmpeg\bin\avdevice-58.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="ffmpeg\bin\avfilter-7.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="ffmpeg\bin\avformat-58.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="ffmpeg\bin\avutil-56.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="ffmpeg\bin\ffprobe.exe">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="ffmpeg\bin\swresample-3.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="ffmpeg\bin\swscale-5.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="ffmpeg\bin\ffmpeg.exe">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
     <Resource Include="Images\brand_company.png" />
     <Resource Include="Images\btn_close_backslash.png" />
     <Resource Include="Images\btn_close_slash.png" />
@@ -115,15 +83,29 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Watermark\" />
+    <Folder Include="ffmpeg\" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="MediaToolkit" Version="1.1.0.1" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="VideoLibrary" Version="3.0.6" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Engine\HiddenWatermark-master\HiddenWatermark\HiddenWatermark.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="ffmpeg\bin\ffmpeg.exe">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="ffmpeg\bin\ffplay.exe">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="ffmpeg\bin\ffprobe.exe">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Images\c3.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

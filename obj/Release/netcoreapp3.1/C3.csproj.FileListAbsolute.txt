@@ -94,13 +94,6 @@ C:\Users\blues\Desktop\Codes\c3\c3-client-wpf\obj\Release\netcoreapp3.1\Views\Re
 C:\Users\pc\Desktop\ROWE\C3\c3-client-wpf\bin\Release\netcoreapp3.1\Localization\Localization.en-US.xaml
 C:\Users\pc\Desktop\ROWE\C3\c3-client-wpf\bin\Release\netcoreapp3.1\Localization\Localization.ko-KR.xaml
 C:\Users\pc\Desktop\ROWE\C3\c3-client-wpf\bin\Release\netcoreapp3.1\C3.exe
-C:\Users\pc\Desktop\ROWE\C3\c3-client-wpf\bin\Release\netcoreapp3.1\ffmpeg\bin\avcodec-58.dll
-C:\Users\pc\Desktop\ROWE\C3\c3-client-wpf\bin\Release\netcoreapp3.1\ffmpeg\bin\avdevice-58.dll
-C:\Users\pc\Desktop\ROWE\C3\c3-client-wpf\bin\Release\netcoreapp3.1\ffmpeg\bin\avfilter-7.dll
-C:\Users\pc\Desktop\ROWE\C3\c3-client-wpf\bin\Release\netcoreapp3.1\ffmpeg\bin\avformat-58.dll
-C:\Users\pc\Desktop\ROWE\C3\c3-client-wpf\bin\Release\netcoreapp3.1\ffmpeg\bin\avutil-56.dll
-C:\Users\pc\Desktop\ROWE\C3\c3-client-wpf\bin\Release\netcoreapp3.1\ffmpeg\bin\swresample-3.dll
-C:\Users\pc\Desktop\ROWE\C3\c3-client-wpf\bin\Release\netcoreapp3.1\ffmpeg\bin\swscale-5.dll
 C:\Users\pc\Desktop\ROWE\C3\c3-client-wpf\bin\Release\netcoreapp3.1\ffmpeg\bin\ffprobe.exe
 C:\Users\pc\Desktop\ROWE\C3\c3-client-wpf\bin\Release\netcoreapp3.1\ffmpeg\bin\ffmpeg.exe
 C:\Users\pc\Desktop\ROWE\C3\c3-client-wpf\bin\Release\netcoreapp3.1\Images\c3.png
@@ -138,3 +131,7 @@ C:\Users\pc\Desktop\ROWE\C3\c3-client-wpf\obj\Release\netcoreapp3.1\C3.csproj.Co
 C:\Users\pc\Desktop\ROWE\C3\c3-client-wpf\obj\Release\netcoreapp3.1\C3.dll
 C:\Users\pc\Desktop\ROWE\C3\c3-client-wpf\obj\Release\netcoreapp3.1\C3.pdb
 C:\Users\pc\Desktop\ROWE\C3\c3-client-wpf\obj\Release\netcoreapp3.1\C3.genruntimeconfig.cache
+C:\Users\pc\Desktop\ROWE\C3\c3-client-wpf\bin\Release\netcoreapp3.1\ffmpeg\bin\ffplay.exe
+C:\Users\pc\Desktop\ROWE\C3\c3-client-wpf\bin\Release\netcoreapp3.1\libvideo.dll
+C:\Users\pc\Desktop\ROWE\C3\c3-client-wpf\bin\Release\netcoreapp3.1\HiddenWatermark.dll
+C:\Users\pc\Desktop\ROWE\C3\c3-client-wpf\bin\Release\netcoreapp3.1\HiddenWatermark.pdb

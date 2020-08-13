@@ -14,5 +14,6 @@
         <Button x:Name="BtnReportManually" Width="640" Height="40" Click="BtnReportManually_Click">
             <TextBlock x:Name="BtnReportManually_Text" Text="Report"/>
         </Button>
+        <Image x:Name="RetrievedWatermark" Margin="5" HorizontalAlignment="Center" Width="64" Height="64" />
     </StackPanel>
 </Window>

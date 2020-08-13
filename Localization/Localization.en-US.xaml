@@ -21,4 +21,9 @@
     <system:String x:Key="ContentOriginalLink">Original Link</system:String>
     <system:String x:Key="ContentKeywordHint">Seperate each keyword by comma(',')</system:String>
     <system:String x:Key="TitleSubmitVideoInfo">Submit information about the video</system:String>
+    <system:String x:Key="SaveRegisteredFile">Save Registered Video File</system:String>
+    <system:String x:Key="RegisteringWithThisFile">Registering with this file</system:String>
+    <system:String x:Key="ExtractingFrames">Extracting frames from video..</system:String>
+    <system:String x:Key="WatermarkingFrames">Applying protection to frames..</system:String>
+    <system:String x:Key="ReplacingFrames">Making video using protected frames..</system:String>
 </ResourceDictionary>

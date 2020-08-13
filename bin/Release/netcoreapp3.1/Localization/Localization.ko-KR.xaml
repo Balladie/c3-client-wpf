@@ -21,4 +21,9 @@
     <system:String x:Key="ContentOriginalLink">원본 링크</system:String>
     <system:String x:Key="ContentKeywordHint">각각의 키워드를 콤마(',')로 분리해 주세요</system:String>
     <system:String x:Key="TitleSubmitVideoInfo">콘텐츠 정보 입력</system:String>
+    <system:String x:Key="SaveRegisteredFile">등록 완료파일 저장하기</system:String>
+    <system:String x:Key="RegisteringWithThisFile">이 파일로 영상 저작권 등록중</system:String>
+    <system:String x:Key="ExtractingFrames">영상에서 프레임 추출 중..</system:String>
+    <system:String x:Key="WatermarkingFrames">프레임에 저작권 보호 작업 중..</system:String>
+    <system:String x:Key="ReplacingFrames">보호된 프레임으로 영상 생성 중..</system:String>
 </ResourceDictionary>

@@ -27,7 +27,6 @@ namespace C3
     {
         private static bool isMaximized;
         private string currentLanguage;
-        private string username;
         private int numAvailable;
         private int maxAvailable;
         private double prevTop;
@@ -40,15 +39,8 @@ namespace C3
         {
             InitializeComponent();
 
-            if (Directory.Exists("./thumbnail"))
-            {
-                Directory.Delete("./thumbnail", true);
-            }
-
             isMaximized = false;
-
-            username = "User123";   // TODO: Complete getting Login user information
-            numAvailable = 7;
+            numAvailable = 0;
             maxAvailable = 10;
 
             saveLastWindowSize();
@@ -99,7 +91,7 @@ namespace C3
         private void TranslateEachText()
         {
             TextWelcomeUsername_Welcome.Text = Application.Current.FindResource("Welcome") + ", ";
-            TextWelcomeUsername_Username.Text = username;
+            TextWelcomeUsername_Username.Text = "";
 
             TextRegisterAvailableMonth_Text.Text = Application.Current.FindResource("RegisterAvailableMonth") as String;
 
@@ -304,10 +296,7 @@ namespace C3
         }
 
         private JObject requestUserJson(string email)
-        {            
-            Debug.WriteLine("-------------");
-            Debug.WriteLine("email: " + email);
-            Debug.WriteLine("-------------");
+        {
             var httpWebRequest = (HttpWebRequest)WebRequest.Create("http://c3.iptime.org:1485/api/users/" + email);
             httpWebRequest.Method = "GET";
             httpWebRequest.Headers["x-access-token"] = Application.Current.Resources["token"].ToString();
@@ -336,7 +325,6 @@ namespace C3
 
         private void saveUserInfo(JObject jo)
         {
-            Debug.WriteLine(jo["username"]);
             Application.Current.Resources["name"] = jo["data"]["name"];
             Application.Current.Resources["email"] = jo["data"]["email"];
             Application.Current.Resources["availableRegisterCount"] = jo["data"]["availableRegisterCount"];
@@ -404,7 +392,7 @@ namespace C3
         {
             Process proc = new Process();
             proc.StartInfo.UseShellExecute = true;
-            proc.StartInfo.FileName = "http://oneclkorea.cafe24.com";
+            proc.StartInfo.FileName = "http://175.125.94.153";
             proc.Start();
         }
 
@@ -412,7 +400,7 @@ namespace C3
         {
             Process proc = new Process();
             proc.StartInfo.UseShellExecute = true;
-            proc.StartInfo.FileName = "http://oneclkorea.cafe24.com";
+            proc.StartInfo.FileName = "http://175.125.94.153";
             proc.Start();
         }
 
@@ -420,7 +408,7 @@ namespace C3
         {
             Process proc = new Process();
             proc.StartInfo.UseShellExecute = true;
-            proc.StartInfo.FileName = "http://oneclkorea.cafe24.com";
+            proc.StartInfo.FileName = "http://175.125.94.153";
             proc.Start();
         }
 
@@ -428,7 +416,7 @@ namespace C3
         {
             Process proc = new Process();
             proc.StartInfo.UseShellExecute = true;
-            proc.StartInfo.FileName = "http://oneclkorea.cafe24.com";
+            proc.StartInfo.FileName = "http://175.125.94.153";
             proc.Start();
         }
 

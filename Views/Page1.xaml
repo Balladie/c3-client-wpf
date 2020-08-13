@@ -137,7 +137,7 @@
             <StackPanel>
                 <Grid>
                     <TextBlock x:Name="TextRegisterThisFile" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#11FFFFFF" FontFamily="../Resources/#AppleSDGothicNeoB00" FontSize="21">
-                            <Run x:Name="TextRegisterThisFile_Text" Text="Register Video Copyright with This File"/>
+                        <Run x:Name="TextRegisterThisFile_Text" Text="Register Video Copyright with This File"/>
                     </TextBlock>
                 </Grid>
             </StackPanel>

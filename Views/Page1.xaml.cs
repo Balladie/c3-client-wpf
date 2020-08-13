@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -24,6 +25,7 @@ using System.Linq;
 using MediaToolkit;
 using MediaToolkit.Model;
 using MediaToolkit.Options;
+using HiddenWatermark;
 
 namespace C3.Views
 {
@@ -38,18 +40,22 @@ namespace C3.Views
         [DllImport("Kernel32")]
         public static extern void FreeConsole();
 
-        private static string fullPath;
-        private string filename;
-        private long fileSize;
+        private static string workdir;
+        private static string fullPath; // full video path
+        private static string filename;
+        private static long fileSize;
         private static bool isUserDraggingSlider;
-        private const int numThumbnail = 5;
-        private int frames = 0;
+
+        private static Watermark _watermark;
 
         public Page1()
         {
             InitializeComponent();
 
+            workdir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
             isUserDraggingSlider = false;
+
+            _watermark = new Watermark(true);
 
             TranslateEachText();
 
@@ -96,62 +102,18 @@ namespace C3.Views
             return (Convert.ToInt32(Math.Floor(sec)) / 3600).ToString() + ":" + (Convert.ToInt32(Math.Floor(sec)) / 60).ToString() + ":" + Convert.ToInt32(Math.Floor(sec)).ToString();
         }
 
-        private void saveUserInfo(JObject jo)
-        {
-            Application.Current.Resources["name"] = jo["data"]["name"];
-            Application.Current.Resources["availableRegisterCount"] = jo["data"]["availableRegisterCount"];
-            Application.Current.Resources["isPremium"] = jo["data"]["isPremium"];
-            Application.Current.Resources["videoList"] = jo["data"]["videoList"];
-            Application.Current.Resources["username"] = jo["data"]["username"];
-        }
-
-        private JObject requestUserJson()
-        {
-            var email = Application.Current.Resources["email"];
-            var httpWebRequest = (HttpWebRequest)WebRequest.Create("http://c3.iptime.org:1485/api/users/" + email);
-            httpWebRequest.Method = "GET";
-            httpWebRequest.Headers["x-access-token"] = Application.Current.Resources["token"].ToString();
-
-            var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
-            using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
-            {
-                var result = streamReader.ReadToEnd();
-                Debug.WriteLine(result);
-                JObject jo = JObject.Parse(result);
-                if (jo["success"].Value<bool>())
-                {
-                    return jo;
-                }
-                else
-                {
-                    return null;
-                }
-            }
-        }
-
         private void ChooseVideoFileToAdd(object sender, MouseButtonEventArgs e)
         {
             Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
             dlg.Filter = "All Files |*";
 
-            Nullable<bool> result = dlg.ShowDialog();
+            bool? result = dlg.ShowDialog();
 
             if (result == true)
             {
                 fullPath = dlg.FileName;
                 fileSize = new System.IO.FileInfo(fullPath).Length;
                 filename = fullPath.Substring(fullPath.LastIndexOf('\\') + 1);
-
-                // if filename contains spaces, replace it to underline
-                /*
-                if (filename.Contains(' '))
-                {
-                    Debug.WriteLine(fullPath);
-                    System.IO.File.Move(fullPath, fullPath.Replace(' ', '_'));
-                    fullPath = fullPath.Replace(' ', '_');
-                }
-
-                filename = fullPath.Substring(fullPath.LastIndexOf('\\') + 1);*/
 
                 VideoPlayer.Visibility = Visibility.Visible;
                 VideoPlayer.BeginInit();
@@ -218,7 +180,7 @@ namespace C3.Views
 
             BtnRegisterThisFile.IsEnabled = true;
 
-            var converter = new System.Windows.Media.BrushConverter();
+            var converter = new BrushConverter();
             var brush = (Brush)converter.ConvertFromString("#66FFFFFF");
             TextRegisterThisFile.Foreground = brush;
 
@@ -309,108 +271,124 @@ namespace C3.Views
             }
         }
 
+        private void ChangeStateText(string rsc, bool findFromResource)
+        {
+            if (findFromResource)
+            {
+                TextRegisterThisFile_Text.Text = Application.Current.FindResource(rsc) as String;
+            }
+            else
+                TextRegisterThisFile_Text.Text = rsc;
+        }
+
+        private void ChangeStateText(string rsc, bool findFromResource, int val)
+        {
+            if (findFromResource)
+                ChangeStateText((Application.Current.FindResource(rsc) as String) + " " + ((int)ProgressRegistering.Value) + " %", false);
+            else
+                ChangeStateText(rsc + " " + ((int)ProgressRegistering.Value) + " %", false);
+        }
+
+        // Start watermarking & registering a video
         private void BtnRegisterThisFile_Click(object sender, RoutedEventArgs e)
         {
+            string outputPath = (fullPath.Substring(0, fullPath.LastIndexOf('.')) + "_watermarked" + fullPath.Substring(fullPath.LastIndexOf('.'))).Replace("\\", "/");
+            string frameDir = workdir.Replace('\\', '/') + "/frames_watermarked/";
+            double duration = GetVideoDuration(fullPath);
+            string prevVid = fullPath;
+            string targetVid = fullPath;
+            bool isInitialEmbed = true;
+
             BtnRegisterThisFile.Background = Brushes.Transparent;
             BtnRegisterThisFile.IsEnabled = false;
             ProgressRegistering.Visibility = Visibility.Visible;
 
-            // ffmpeg -i kakaotalk_1558771745380.mp4 -i watermark.png -qscale:v 0 -filter_complex "[1]lut=a=val*0.3[a];[0][a]overlay=x=(main_w-overlay_w):y=(main_h-overlay_h)" outputVideo.mp4
-            string outputPath = (fullPath.Substring(0, fullPath.LastIndexOf('.')) + "_watermarked" + fullPath.Substring(fullPath.LastIndexOf('.'))).Replace("\\", "/");
-            var markPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location) + @"\Images\watermark.png";
-            var inputArgs = ("-i \"" + fullPath + "\" -i \"" + markPath + "\" -qscale:v 0 -filter_complex \"[1]lut=a=val*0.3[a];[0][a]overlay=x=(main_w-overlay_w):y=(main_h-overlay_h)\" \"" + outputPath + "\"").Replace("\\", "/");
-
-            Debug.WriteLine("Base Directory: " + System.AppDomain.CurrentDomain.BaseDirectory);
-            Debug.WriteLine("markPath: " + markPath);
-            Debug.WriteLine("ffmpeg Path: " + System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location) + @"\ffmpeg\bin\ffmpeg.exe");
-            Debug.WriteLine("inputArgs: ffmpeg.exe " + inputArgs);
-            Debug.WriteLine("outputPath: " + outputPath);
-
-            var ffprobe = new Process
+            // Extract all video frames
+            this.Dispatcher.Invoke(DispatcherPriority.Background, new Action(() =>
             {
-                StartInfo =
+                ChangeStateText("ExtractingFrames", false);
+            }));
+            ExtractFrames(fullPath, "frames");
+
+            // iterate frame image files
+            string[] files = Directory.GetFiles(workdir + "\\frames", "*.png", SearchOption.AllDirectories);
+
+            if (Directory.Exists(workdir + "\\frames_watermarked"))
+                Directory.Delete(workdir + "\\frames_watermarked", true);
+            Directory.CreateDirectory(workdir + "\\frames_watermarked");
+
+            var sw = Stopwatch.StartNew();
+
+            // add watermark to each frames
+            for (int i = 0; i < files.Length; ++i)
+            {
+                double progressPerc = ((double)i) / files.Length * 100;
+                this.Dispatcher.Invoke(DispatcherPriority.Background, new Action(() =>
                 {
-                    FileName = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location) + @"\ffmpeg\bin\ffprobe.exe",
-                    Arguments = "-v error -select_streams v:0 -show_entries stream=nb_frames -of default=nokey=1:noprint_wrappers=1 \"" + fullPath + "\"",
+                    ChangeStateText("WatermarkingFrames", true, (int)progressPerc);
+                    UpdateProgressBar(progressPerc);
+                }));
+
+                string filename = files[i].Trim().Substring(files[i].LastIndexOf('\\') + 1);
+                var fileBytes = File.ReadAllBytes(files[i]);
+                var embeddedBytes = _watermark.EmbedWatermark(fileBytes);
+                string frameLocation = workdir + "/frames_watermarked/" + filename;
+                File.WriteAllBytes(frameLocation, embeddedBytes);
+            }
+
+            // replace watermarked frames to each video frames
+            for (int i = 0; i < files.Length; ++i)
+            {
+                double progressedRate = ((double)i) / files.Length * 100;
+                this.Dispatcher.Invoke(DispatcherPriority.Background, new Action(() =>
+                {
+                    ChangeStateText("ReplacingFrames", true, (int)progressedRate);
+                    UpdateProgressBar(progressedRate);
+                }));
+
+                double timeReplace = duration * i / files.Length;
+                targetVid = (fullPath.Substring(0, fullPath.LastIndexOf('.')) + $"_output_{i + 1}." + fullPath.Substring(fullPath.LastIndexOf('.') + 1)).Replace('\\', '/');
+                string arg = "-i \"" + prevVid + "\" -i \"" + frameDir + "" + String.Format("{0:D5}", i + 1) + $".png\" -filter_complex \"[1]setpts={timeReplace}/TB[im];[0][im]overlay=eof_action=pass\" -codec:v libx264 -crf 18 -preset slow -pix_fmt yuv420p -c:a copy \"" + targetVid + "\"";
+                Debug.WriteLine(arg);
+
+                var process = new Process
+                {
+                    StartInfo =
+                {
+                    FileName = workdir + @"\ffmpeg\bin\ffmpeg.exe",
+                    Arguments = arg,
                     UseShellExecute = false,
                     CreateNoWindow = true,
                     RedirectStandardInput = true,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true
-                }
-            };
-
-            ffprobe.OutputDataReceived += new DataReceivedEventHandler((s, e) =>
-            {
-                if (e.Data != null)
-                {
-                    try
-                    {
-                        frames = Convert.ToInt32(e.Data.Trim());
-                    }
-                    catch
-                    {
-                        Debug.WriteLine("Error getting duration of the video...");
-                        if (ffprobe != null) ffprobe.Dispose();
-                    }
-                }
-            });
-
-            ffprobe.Start();
-            ffprobe.BeginOutputReadLine();
-            ffprobe.BeginErrorReadLine();
-            ffprobe.WaitForExit();
-
-            var process = new Process
-            {
-                StartInfo =
-                {
-                    FileName = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location) + @"\ffmpeg\bin\ffmpeg.exe",
-                    Arguments = $"{inputArgs}",
-                    UseShellExecute = false,
-                    CreateNoWindow = false,
-                    RedirectStandardInput = true,
                     RedirectStandardOutput = false,
-                    RedirectStandardError = true
+                    RedirectStandardError = false
                 }
-            };
+                };
 
-            //AllocConsole();
-            
-            /*
-            process.OutputDataReceived += new DataReceivedEventHandler((s, e) =>
-            {
-                Console.WriteLine(e.Data);
-            });*/
-            process.ErrorDataReceived += new DataReceivedEventHandler((s, e) =>
-            {
-                Console.WriteLine(e.Data);
+                process.Start();
+                process.StandardInput.Write("y\n");
+                process.WaitForExit();
 
-                if (e.Data != null && e.Data.Contains("Error", StringComparison.OrdinalIgnoreCase))
+                if (isInitialEmbed)
                 {
-                    MessageBox.Show("An Error occured while watermarking. Please check your video file and if there's still error, send an e-mail to us so that we can reach to help you.");
-                    ResetToDefaultInputMode();
-                    return;
+                    isInitialEmbed = false;
+                }
+                else
+                {
+                    File.Delete(prevVid);
                 }
 
-                //Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(delegate { ProgressRegistering.Value = 100 * currentFrame / frames; }));
-                //Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(delegate { TextRegisterThisFile_Text.Text = e.Data; }));
-            });
+                prevVid = targetVid;
+            }
 
-            process.Start();
-            //process.BeginOutputReadLine();
-            process.BeginErrorReadLine();
+            sw.Stop();
 
-            var ffmpegIn = process.StandardInput;
+            // rename last iterated video for being output file
+            if (File.Exists(outputPath))
+                File.Delete(outputPath);
+            File.Move(targetVid, outputPath);
 
-            // Write Data
-            ffmpegIn.Write("y\n");
-
-            // Make sure ffmpeg has finished the work
-            process.WaitForExit();
-            //FreeConsole();
-
-            // TODO: !!!!!!!!!!!!!!!!!!1
+            // let user select thumbnail of his video
             Application.Current.Resources["thumbnail"] = selectThumbnail(outputPath);
 
             VideoPlayer.Visibility = Visibility.Collapsed;
@@ -421,7 +399,7 @@ namespace C3.Views
 
             TextBox_Registerer.Text = Application.Current.Resources["username"].ToString();
             
-            BtnRegisterThisFile.Background = (Brush)(new System.Windows.Media.BrushConverter()).ConvertFromString("#B3000000");
+            BtnRegisterThisFile.Background = (Brush)(new BrushConverter()).ConvertFromString("#B3000000");
             BtnRegisterThisFile.Click -= BtnRegisterThisFile_Click;
             BtnRegisterThisFile.Click += BtnRegisterThisFile_Click2;
 
@@ -429,7 +407,10 @@ namespace C3.Views
             ProgressRegistering.Visibility = Visibility.Collapsed;
             ProgressRegistering.Value = 0;
 
-            TextRegisterThisFile_Text.Text = "등록 완료파일 저장하기";
+            this.Dispatcher.Invoke(DispatcherPriority.Background, new Action(() =>
+            {
+                ChangeStateText("SaveRegisteredFile", true);
+            }));
         }
 
         private string selectThumbnail(string path)
@@ -470,13 +451,12 @@ namespace C3.Views
             return pathThumbnail;
         }
 
-        private void UpdateProgressBar(int val)
+        private void UpdateProgressBar(double val)
         {
             ProgressRegistering.Value = val;
-            TextRegisterThisFile_Text.Text = "이 파일로 영상 저작권 등록중 " + ProgressRegistering.Value + "%";
         }
 
-        // TODO: Implement adding registered video to the real implemented user profile
+        // Adding registered video information to the server
         private void BtnRegisterThisFile_Click2(object sender, RoutedEventArgs e)
         {
             if (TextBox_ContentTitle.Text == "" || TextBox_Keyword.Text == "" || TextBox_MadeAt.Text == "" || TextBox_OriginalLink.Text == "")
@@ -484,8 +464,9 @@ namespace C3.Views
                 MessageBox.Show("Please fulfill the given format!");
                 return;
             }
-            //var result = registerVideo(TextBox_ContentTitle.Text, TextBox_Keyword.Text, TextBox_MadeAt.Text, TextBox_Description.Text, TextBox_OriginalLink.Text);
+
             var result = registerVideo(TextBox_ContentTitle.Text, TextBox_Keyword.Text, TextBox_MadeAt.Text, TextBox_Description.Text, TextBox_OriginalLink.Text, Application.Current.Resources["thumbnail"].ToString());
+
             if (result == null)
             {
                 MessageBox.Show("Sorry but somehow it failed to register your video. Try again and if it still does not work, please contact us.");
@@ -503,9 +484,9 @@ namespace C3.Views
             ResetToDefaultInputMode();
         }
 
-        private static Tuple<int, int, long> GetVideoDuration(string fileName)
+        private static Tuple<int, int, long> GetVideoDurationTuple(string fileName)
         {
-            var inputFile = new MediaToolkit.Model.MediaFile { Filename = @fileName };
+            var inputFile = new MediaFile { Filename = @fileName };
             using (var engine = new Engine())
             {
                 engine.GetMetadata(@inputFile);
@@ -514,6 +495,220 @@ namespace C3.Views
             var size = inputFile.Metadata.VideoData.FrameSize.Split(new[] { 'x' }).Select(o => int.Parse(o)).ToArray();
 
             return new Tuple<int, int, long>(size[0], size[1], inputFile.Metadata.Duration.Ticks);
+        }
+
+
+        private double GetVideoDuration(string filePath)
+        {
+            double duration = 0.0;
+            string filename = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location) + @"\ffmpeg\bin\ffprobe.exe";
+
+            var ffprobe = new Process
+            {
+                StartInfo =
+                {
+                    FileName = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location) + @"\ffmpeg\bin\ffprobe.exe",
+                    Arguments = "-v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 \"" + filePath.Replace('\\', '/') + "\"",
+                    UseShellExecute = false,
+                    CreateNoWindow = false,
+                    RedirectStandardInput = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true
+                }
+            };
+
+            ffprobe.OutputDataReceived += new DataReceivedEventHandler((s, e) =>
+            {
+                if (e.Data != null)
+                {
+                    Debug.WriteLine(e.Data);
+                    try
+                    {
+                        duration = Convert.ToDouble(e.Data.Trim());
+                    }
+                    catch
+                    {
+                        Debug.WriteLine("Error getting duration of the video...");
+                        if (ffprobe != null)
+                            ffprobe.Dispose();
+                    }
+                }
+            });
+
+            ffprobe.ErrorDataReceived += new DataReceivedEventHandler((s, e) =>
+            {
+                if (e.Data != null)
+                {
+                    Debug.WriteLine(e.Data);
+                    try
+                    {
+                        duration = Convert.ToDouble(e.Data.Trim());
+                    }
+                    catch
+                    {
+                        Debug.WriteLine("Error getting duration of the video...");
+                        if (ffprobe != null)
+                            ffprobe.Dispose();
+                    }
+                }
+            });
+
+            ffprobe.Start();
+            ffprobe.BeginOutputReadLine();
+            ffprobe.BeginErrorReadLine();
+            ffprobe.WaitForExit();
+
+            return duration;
+        }
+
+        private string GetVideoFPS(string filePath)
+        {
+            string fps = "0";
+            string filename = workdir + @"\ffmpeg\bin\ffprobe.exe";
+
+            var ffprobe = new Process
+            {
+                StartInfo =
+                {
+                    FileName = workdir + @"\ffmpeg\bin\ffprobe.exe",
+                    Arguments = "-v error -select_streams v -of default=noprint_wrappers=1:nokey=1 -show_entries stream=r_frame_rate \"" + filePath.Replace('\\', '/') + "\"",
+                    UseShellExecute = false,
+                    CreateNoWindow = false,
+                    RedirectStandardInput = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true
+                }
+            };
+
+            ffprobe.OutputDataReceived += new DataReceivedEventHandler((s, e) =>
+            {
+                if (e.Data != null)
+                {
+                    Debug.WriteLine(e.Data);
+                    try
+                    {
+                        fps = e.Data.Trim();
+                    }
+                    catch
+                    {
+                        Debug.WriteLine("Error getting fps of the video...");
+                        if (ffprobe != null)
+                            ffprobe.Dispose();
+                    }
+                }
+            });
+
+            ffprobe.ErrorDataReceived += new DataReceivedEventHandler((s, e) =>
+            {
+                if (e.Data != null)
+                {
+                    Debug.WriteLine(e.Data);
+                    try
+                    {
+                        fps = e.Data.Trim();
+                    }
+                    catch
+                    {
+                        Debug.WriteLine("Error getting fps of the video...");
+                        if (ffprobe != null)
+                            ffprobe.Dispose();
+                    }
+                }
+            });
+
+            ffprobe.Start();
+            ffprobe.BeginOutputReadLine();
+            ffprobe.BeginErrorReadLine();
+            ffprobe.WaitForExit();
+
+            return fps;
+        }
+
+        private int GetVideoFrameNum(string filePath)
+        {
+            int frames = 0;
+
+            var ffprobe = new Process
+            {
+                StartInfo =
+                {
+                    FileName = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location) + @"\ffmpeg\bin\ffprobe.exe",
+                    Arguments = "-v error -select_streams v:0 -show_entries stream=nb_frames -of default=nokey=1:noprint_wrappers=1 \"" + fullPath + "\"",
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    RedirectStandardInput = true,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true
+                }
+            };
+
+            ffprobe.OutputDataReceived += new DataReceivedEventHandler((s, e) =>
+            {
+                if (e.Data != null)
+                {
+                    try
+                    {
+                        frames = Convert.ToInt32(e.Data.Trim());
+                    }
+                    catch
+                    {
+                        Debug.WriteLine("Error getting duration of the video...");
+                        if (ffprobe != null) ffprobe.Dispose();
+                    }
+                }
+            });
+
+            ffprobe.Start();
+            ffprobe.BeginOutputReadLine();
+            ffprobe.BeginErrorReadLine();
+            ffprobe.WaitForExit();
+
+            return frames;
+        }
+
+        private void ExtractFrames(string filePath, string folder)
+        {
+            Debug.WriteLine($"Extracting frame from: {filePath}, to directory: {folder}");
+
+            string frameDir = workdir + "\\" + folder;
+            string fps = GetVideoFPS(filePath);
+
+            if (Directory.Exists(frameDir))
+                Directory.Delete(frameDir, true);
+            Directory.CreateDirectory(frameDir);
+
+            string[] files = Directory.GetFiles(frameDir, "*", SearchOption.AllDirectories);
+            if (files.Length > 0)
+            {
+                DirectoryInfo di = new DirectoryInfo(workdir + "\\" + folder);
+                foreach (FileInfo file in di.EnumerateFiles())
+                {
+                    file.Delete();
+                }
+                foreach (DirectoryInfo dir in di.EnumerateDirectories())
+                {
+                    dir.Delete(true);
+                }
+            }
+
+            string arg = $"-i \"{filePath.Replace('\\', '/')}\" -vf fps={fps} -qscale:v 2 \"" + frameDir.Replace('\\', '/') + "/%05d.png\"";
+
+            var process = new Process
+            {
+                StartInfo =
+                {
+                    FileName = workdir + @"\ffmpeg\bin\ffmpeg.exe",
+                    Arguments = arg,
+                    UseShellExecute = false,
+                    CreateNoWindow = false,
+                    RedirectStandardInput = false,
+                    RedirectStandardOutput = false,
+                    RedirectStandardError = false
+                }
+            };
+
+            process.Start();
+            process.WaitForExit();
         }
 
         private static string GetVideoResolution(string filename)
@@ -557,7 +752,6 @@ namespace C3.Views
             return res;
         }
 
-        //private string registerVideo(string title, string keyword, string madeAt, string contentDescription, string originalLink)
         private string registerVideo(string title, string keyword, string madeAt, string contentDescription, string originalLink, string pathThumbnail)
         {
             string username = Application.Current.Resources["username"].ToString();
@@ -570,7 +764,7 @@ namespace C3.Views
             try
             {
                 fileSize = new FileInfo(fullPath).Length;
-                duration = TimeSpan.FromTicks(GetVideoDuration(fullPath).Item3).ToString(@"dd\:hh\:mm\:ss");
+                duration = TimeSpan.FromTicks(GetVideoDurationTuple(fullPath).Item3).ToString(@"dd\:hh\:mm\:ss");
                 resolution = GetVideoResolution(fullPath);
             }
             catch (Exception e)
@@ -631,24 +825,6 @@ namespace C3.Views
                 Debug.WriteLine("++++++++++++++++++++++");
                 Debug.WriteLine(response.ToString());
                 Debug.WriteLine("++++++++++++++++++++++");
-
-                /*
-                var webClient = new WebClient();
-                string boundary = "----------------------------" + DateTime.Now.Ticks.ToString("x");
-                var fileData = webClient.Encoding.GetString(File.ReadAllBytes(pathThumbnail));
-                Debug.WriteLine(fileData);
-                var package = string.Format("--{0}\r\nContent-Disposition: form-data; name=\"file\"; filename=\"{1}\"\r\nContent-Type: {2}\r\n\r\n{3}\r\n--{0}--\r\n", boundary, System.IO.Path.GetFileName(pathThumbnail), System.IO.Path.GetExtension(pathThumbnail), fileData);
-                var nfile = webClient.Encoding.GetBytes(package);
-
-                url = "http://c3.iptime.org:1485/api/users/image/" + username + "/" + utcNow.ToString().Trim();
-
-                webClient.Headers.Add("Content-Type", "multipart/form-data; boundary=" + boundary);
-                webClient.Headers.Add("x-access-token", Application.Current.Resources["token"].ToString());
-
-                var resp = webClient.UploadData(url, "POST", nfile);
-                Debug.WriteLine("++++++++++++++++++++++");
-                Debug.WriteLine(resp.ToString());
-                Debug.WriteLine("++++++++++++++++++++++");*/
             }
             catch (Exception e)
             {
@@ -667,7 +843,7 @@ namespace C3.Views
 
             BtnRegisterThisFile.IsEnabled = false;
 
-            var converter = new System.Windows.Media.BrushConverter();
+            var converter = new BrushConverter();
             var brush = (Brush)converter.ConvertFromString("#11FFFFFF");
             TextRegisterThisFile.Foreground = brush;
 
@@ -688,12 +864,11 @@ namespace C3.Views
             TextAddedFileName.Visibility = Visibility.Collapsed;
             TextAddedFileInfo.Visibility = Visibility.Collapsed;
 
-            //BtnRegisterThisFile
-            BtnRegisterThisFile.Background = (Brush)(new System.Windows.Media.BrushConverter()).ConvertFromString("#7F32A0AB");
+            BtnRegisterThisFile.Background = (Brush)(new BrushConverter()).ConvertFromString("#7F32A0AB");
             BtnRegisterThisFile.Click -= BtnRegisterThisFile_Click2;
             BtnRegisterThisFile.Click += BtnRegisterThisFile_Click;
 
-            TextRegisterThisFile_Text.Text = Application.Current.FindResource("RegisterThisFile") as String;
+            ChangeStateText("RegisterThisFile", true);
             TextTitleRegisterNew.Text = Application.Current.FindResource("TitleRegisterNew") as String;
         }
     }

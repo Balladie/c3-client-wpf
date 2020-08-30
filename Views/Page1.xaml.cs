@@ -311,7 +311,7 @@ namespace C3.Views
             ExtractFrames(fullPath, "frames");
 
             // iterate frame image files
-            string[] files = Directory.GetFiles(workdir + "\\frames", "*.png", SearchOption.AllDirectories);
+            string[] files = Directory.GetFiles(workdir + "\\frames", "*.jpg", SearchOption.AllDirectories);
 
             if (Directory.Exists(workdir + "\\frames_watermarked"))
                 Directory.Delete(workdir + "\\frames_watermarked", true);
@@ -336,6 +336,7 @@ namespace C3.Views
                 File.WriteAllBytes(frameLocation, embeddedBytes);
             }
 
+            /*
             // replace watermarked frames to each video frames
             for (int i = 0; i < files.Length; ++i)
             {
@@ -348,7 +349,7 @@ namespace C3.Views
 
                 double timeReplace = duration * i / files.Length;
                 targetVid = (fullPath.Substring(0, fullPath.LastIndexOf('.')) + $"_output_{i + 1}." + fullPath.Substring(fullPath.LastIndexOf('.') + 1)).Replace('\\', '/');
-                string arg = "-i \"" + prevVid + "\" -i \"" + frameDir + "" + String.Format("{0:D5}", i + 1) + $".png\" -filter_complex \"[1]setpts={timeReplace}/TB[im];[0][im]overlay=eof_action=pass\" -codec:v libx264 -crf 18 -preset slow -pix_fmt yuv420p -c:a copy \"" + targetVid + "\"";
+                string arg = "-i \"" + prevVid + "\" -i \"" + frameDir + "" + String.Format("{0:D5}", i + 1) + $".jpg\" -filter_complex \"[1]setpts={timeReplace}/TB[im];[0][im]overlay=eof_action=pass\" -codec:v libx264 -crf 18 -preset slow -pix_fmt yuv420p -c:a copy \"" + targetVid + "\"";
                 Debug.WriteLine(arg);
 
                 var process = new Process
@@ -379,14 +380,40 @@ namespace C3.Views
                 }
 
                 prevVid = targetVid;
-            }
+            }*/
+
+            string arg = "-i \"" + frameDir + "%05d.jpg\" -codec:v libx264 -crf 18 -preset slow -pix_fmt yuv420p \"" + outputPath + "\"";
+
+            this.Dispatcher.Invoke(DispatcherPriority.Background, new Action(() =>
+            {
+                ChangeStateText("ReplacingFrames", true);
+            }));
+
+            var process = new Process
+            {
+                StartInfo =
+                {
+                    FileName = workdir + @"\ffmpeg\bin\ffmpeg.exe",
+                    Arguments = arg,
+                    UseShellExecute = false,
+                    CreateNoWindow = false,
+                    RedirectStandardInput = true,
+                    RedirectStandardOutput = false,
+                    RedirectStandardError = false
+                }
+            };
+
+            process.Start();
+            process.StandardInput.Write("y\n");
+            process.WaitForExit();
 
             sw.Stop();
 
+            /*
             // rename last iterated video for being output file
             if (File.Exists(outputPath))
                 File.Delete(outputPath);
-            File.Move(targetVid, outputPath);
+            File.Move(targetVid, outputPath);*/
 
             // let user select thumbnail of his video
             Application.Current.Resources["thumbnail"] = selectThumbnail(outputPath);
@@ -691,7 +718,7 @@ namespace C3.Views
                 }
             }
 
-            string arg = $"-i \"{filePath.Replace('\\', '/')}\" -vf fps={fps} -qscale:v 2 \"" + frameDir.Replace('\\', '/') + "/%05d.png\"";
+            string arg = $"-i \"{filePath.Replace('\\', '/')}\" -vf fps={fps} -qscale:v 2 \"" + frameDir.Replace('\\', '/') + "/%05d.jpg\"";
 
             var process = new Process
             {

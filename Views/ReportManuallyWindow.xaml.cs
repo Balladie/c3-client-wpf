@@ -177,6 +177,8 @@ namespace C3.Views
                 if (!(url.Contains("http://") || url.Contains("https://")))
                     url = "https://" + url;
 
+                Debug.WriteLine(url);
+
                 // download youtube video from url
                 try
                 {
